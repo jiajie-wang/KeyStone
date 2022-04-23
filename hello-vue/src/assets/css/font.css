@@ -1,0 +1,15 @@
+
+@font-face {
+  font-family: 'newFont';
+src: url('RalphieBrown.ttf') format('truetype');
+font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'newFont2';
+  src: url('../css/googlefont.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+

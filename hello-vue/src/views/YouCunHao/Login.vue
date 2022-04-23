@@ -33,15 +33,15 @@ export default {
 
       // 表单验证，需要在 el-form-item 元素中增加 prop 属性
       rules: {
-        password: [{required: true, message: '密码不能为空', trigger: 'blur'}, {
+        password: [{required: true, message: 'The password cannot be empty', trigger: 'blur'}, {
           min: 6,
           max: 16,
-          message: '长度错误',
+          message: 'The length of the error',
           trigger: 'blur'
         }],
-        email: [{required: true, message: '邮箱不能为空', trigger: 'blur'}, {
+        email: [{required: true, message: 'The mailbox cannot be empty', trigger: 'blur'}, {
           type: 'email',
-          message: '请输入正确的邮箱',
+          message: 'Please enter the correct email address',
           trigger: 'blur'
         }]
 
@@ -70,24 +70,24 @@ export default {
             console.log(res.data)
             if(res.status==200){
               if (res.data.userId!=0){
-                this.$alert("登录成功! " + "  User ID : " + res.data.userId)
+                this.$alert("Login successful! " + "  User ID : " + res.data.userId)
                 //跳转功能
                 this.$router.push({path: '/XC/personal',query:{uid: res.data.userId, email:this.$route.query.email, phoneNum:this.$route.query.phoneNum, verifyQues:this.$route.query.verifyQues, verifyAns:this.$route.query.verifyAns}})
               }else{
-                this.$alert("密码错误！！")
+                this.$alert("Password mistake！！")
               }
             }else{
-              this.$alert("不存在的邮箱！！")
+              this.$alert("A non-existent mailbox！！")
             }
 
           }).catch(err => {
 
             console.log(err.message)
-            this.$alert("登录失败！" )
+            this.$alert("Login failed！" )
           })
         }
         else {
-          console.log("错误")
+          console.log("error")
           this.dialogVisible = true;
           return false;
         }

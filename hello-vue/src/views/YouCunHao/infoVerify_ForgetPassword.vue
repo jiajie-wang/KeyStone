@@ -53,18 +53,18 @@ export default {
 
       // 表单验证，需要在 el-form-item 元素中增加 prop 属性
       rules: {
-        email: [{required: true, message: '邮箱不能为空', trigger: 'blur'}, {
+        email: [{required: true, message: 'The email cannot be empty', trigger: 'blur'}, {
           type: 'email',
-          message: '请输入正确的邮箱',
+          message: 'Please enter the correct email address',
           trigger: 'blur'
         }],
-        password: [{required: true, message: '密码不能为空', trigger: 'blur'}, {
+        password: [{required: true, message: 'The password cannot be empty', trigger: 'blur'}, {
           min: 6,
           max: 16,
-          message: '长度错误',
+          message: 'The length of the error',
           trigger: 'blur'
         }],
-        validatorAnswer: [{required: true, message: '验证答案不能为空', trigger: 'blur'}],
+        validatorAnswer: [{required: true, message: 'Verify answer cannot be blank', trigger: 'blur'}],
       }
 
     }
@@ -98,7 +98,7 @@ export default {
                 dataType:'json',
                 headers:{'Content-Type': "application/json;charset=utf-8"}
               }).then(res =>{
-                this.$alert("密码更改成功！！")
+                this.$alert("Password changed successfully！！")
                 this.$router.push({path:'/contain/login'})
               }).catch(err => {
                 console.log(err.message)
@@ -108,7 +108,7 @@ export default {
             console.log(err.message)
           })
         } else {
-          console.log("请输入完整的信息")
+          console.log("Please enter complete information")
           return false;
         }
       });
@@ -126,7 +126,7 @@ export default {
       this.$alert("get the question successfully")
     }).catch(err => {
       console.log(err.message)
-        this.$alert("请输入正确的邮箱")
+        this.$alert("Please enter the correct email address")
     })
     }
   }

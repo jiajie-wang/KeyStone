@@ -9,7 +9,7 @@ import ElementUI from "element-ui"
 import 'element-ui/lib/theme-chalk/index.css'
 
 import axios from "axios";
-
+axios.defaults.baseURL = 'http://localhost:8081'
 //使用
 Vue.use(VueRouter)
 Vue.use(ElementUI)
@@ -22,12 +22,4 @@ new Vue({
 
 
 
-axios({
-  url:'http://123.207.32.32:8000/home/multidata'
-}).then(res =>{
-  console.log(res.data.data.banner.list[0])
-  if (res.data.data.banner.list[0].title.includes("焕新女装节")){
-    console.log("true")
-  }
-})
 

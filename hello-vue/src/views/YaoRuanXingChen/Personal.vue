@@ -15,50 +15,89 @@
         </el-form-item>
 
         <el-form ref="BasicInfo" :model="personData"  class="login-box">
+
           <el-form-item>
             <label>ID</label>
-            <el-input v-model="personData.userId" v-bind:readonly="true" placeholder="Enter your ID"></el-input>
+            <el-input v-bind:readonly="true" v-model="personData.userId"></el-input>
           </el-form-item>
+
           <el-form-item>
             <label>Nickname</label>
-            <el-input v-model="personData.userName" placeholder="Enter your NickName"></el-input>
+            <el-input placeholder="Enter nickname" v-model="personData.userName"></el-input>
           </el-form-item>
+
           <el-form-item>
             <label>Gender</label>
-            <el-input v-model="personData.gender" placeholder="Enter your gender"></el-input>
+            <el-select placeholder="Please choose" v-model="personData.gender" style="width:100%">
+              <el-option label="male" :value="1"/>
+              <el-option label="female" :value="2"/>
+              <el-option label="privacy" :value="0"/>
+            </el-select>
           </el-form-item>
+
           <el-form-item>
             <label>Birthday</label>
-            <el-input v-model="personData.birthday" placeholder="Enter your Birthday"></el-input>
+            <el-input placeholder="Enter your birthday date" v-model="personData.birthday"></el-input>
           </el-form-item>
+
           <el-form-item>
             <label>School</label>
-            <el-input v-model="personData.school" placeholder="Enter your School"></el-input>
+            <el-input placeholder="Enter your school name" v-model="personData.school"></el-input>
           </el-form-item>
+
           <el-form-item>
-            <label>RelaStat</label>
-            <el-input v-model="personData.relaStat" placeholder="Enter your relaStat"></el-input>
+            <label>Relation ship</label>
+            <el-select placeholder="Please choose" v-model="personData.relaStat" style="width:100%">
+              <el-option label="unknown" :value="0"/>
+              <el-option label="single" :value="1"/>
+              <el-option label="in a relationship" :value="2"/>
+            </el-select>
           </el-form-item>
+
+          <el-form-item>
+            <label>Int in girl</label>
+            <el-select placeholder="Please choose" v-model="personData.girl" style="width:100%">
+              <el-option label="No" :value="0"/>
+              <el-option label="Yes" :value="4"/>
+            </el-select>
+          </el-form-item>
+
+          <el-form-item>
+            <label>look for friends</label>
+            <el-select placeholder="Please choose" v-model="personData.friend" style="width:100%">
+              <el-option label="No" :value="0"/>
+              <el-option label="Yes" :value="1"/>
+            </el-select>
+          </el-form-item>
+
           <el-form-item>
             <label>Height</label>
-            <el-input v-model="personData.height" placeholder="Enter your Height"></el-input>
+            <el-input v-model="personData.height"></el-input>
           </el-form-item>
+
           <el-form-item>
             <label>Weight</label>
-            <el-input v-model="personData.weight" placeholder="Enter your Weight"></el-input>
+            <el-input v-model="personData.weight"></el-input>
           </el-form-item>
+
           <el-form-item>
-            <label>Perfer</label>
-            <el-input v-model="personData.perfer" placeholder="Enter your Perfer"></el-input>
+            <label>Int in boy</label>
+            <el-select placeholder="Please choose" v-model="personData.boy" style="width:100%">
+              <el-option label="no" :value="0"/>
+              <el-option label="yes" :value="2"/>
+
+            </el-select>
           </el-form-item>
+
           <el-form-item>
             <label>SayHi</label>
-            <el-input v-model="personData.sayHi" placeholder="Enter your Introduction"></el-input>
+            <el-input placeholder="Say hello to people" v-model="personData.sayHi"></el-input>
           </el-form-item>
 
         </el-form>
         <el-form-item>
           <el-button type="primary" @click="onSubmit('BasicInfo')">save</el-button>
+
         </el-form-item>
       </el-form>
     </div>
@@ -111,17 +150,18 @@ export default{
       headers:{'Content-Type': "application/json;charset=utf-8"}
     }).then(res =>{
       console.log(res.data)
-
       this.personData.avatar = res.data.ubi.avatar
       this.personData.userId = this.$route.query.uid
       this.personData.userName = res.data.ubi.userName
-      this.personData.gender =res.data.ubi.gender
+      this.personData.gender = res.data.ubi.gender
       this.personData.birthday =res.data.ubi.birthday
       this.personData.school =res.data.ubi.school
       this.personData.relaStat =res.data.ubi.relaStat
       this.personData.height =res.data.ubi.height
       this.personData.weight =res.data.ubi.weight
-      this.personData.perfer =res.data.ubi.perfer
+      this.personData.friend =res.data.ubi.perfer%2
+      this.personData.boy =(((res.data.ubi.perfer-this.personData.friend)/2)%2)*2
+      this.personData.girl =((((res.data.ubi.perfer-this.personData.friend)/2-this.personData.boy/2)/2)%2)*4
       this.personData.sayHi =res.data.ubi.sayHi
       this.personData.introduction =res.data.ubi.introduction
     }).catch(err => {
@@ -139,8 +179,11 @@ export default{
         relaStat:'',
         height:'',
         weight:'',
-        perfer:'',
+        girl:'',
+        boy:'',
+        friend:'',
         sayHi:'',
+        prefer:'',
         introduction:'',
       },
       tagList:[
@@ -198,6 +241,9 @@ export default{
       }
       return isJPG && isLt2M;
     },
+    test(formName){
+      this.$alert(this.personData.perfer)
+    },
     onSubmit(formName){
       console.log(this.$refs[formName])
       this.$refs[formName].validate((valid) => {
@@ -215,7 +261,7 @@ export default{
                 "relaStat": this.personData.relaStat,
                 "height": this.personData.height,
                 "weight": this.personData.weight,
-                "perfer": this.personData.perfer,
+                "perfer": this.personData.boy + this.personData.girl + this.personData.friend,
                 "introduction": this.personData.introduction,
                 "sayHi": this.personData.sayHi
               },
@@ -226,16 +272,16 @@ export default{
           }).then(res => {
             console.log(res)
             console.log(res.data)
-            this.$alert("修改成功! " + "  User ID : " + res.data)
+            this.$alert("successfully changed! " + "  User ID : " + res.data)
             //跳转功能
             this.$router.push({path: '/XC/personal',query:{uid: res.data}})
           }).catch(err => {
 
             console.log(err.message)
-            this.$alert("修改失败！ " + " 未知报错")
+            this.$alert("change error！ " + " unknown err")
           })
         } else {
-          this.$alert("修改失败！！")
+          this.$alert("change error！！")
           return false;
         }
       });

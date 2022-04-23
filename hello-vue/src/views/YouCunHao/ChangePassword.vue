@@ -25,14 +25,7 @@ import axios from "axios";
 export default {
   name: "ChangePassword",
   data() {
-    var validateEmail = (rule, value, callback) => {
-      if (this.msg == '') {
-        callback(new Error('邮箱不能为空'));
-      }
-      else {
-        callback()
-      }
-    };
+
 
     return {
       msg: '',
@@ -43,8 +36,8 @@ export default {
 
       // 表单验证，需要在 el-form-item 元素中增加 prop 属性
       rules: {
-        password: [{required: true, message: '原密码不能为空', trigger: 'blur'},{min:6, max:16, message:'长度错误', trigger: 'blur'}],
-        new_password: [{required: true, message: '新密码不能为空', trigger: 'blur'},{min:6, max:16, message:'长度错误', trigger: 'blur'}]
+        password: [{required: true, message: 'The old password cannot be empty', trigger: 'blur'},{min:6, max:16, message:'The length of the error', trigger: 'blur'}],
+        new_password: [{required: true, message: 'The new password cannot be empty', trigger: 'blur'},{min:6, max:16, message:'The length of the error', trigger: 'blur'}]
       }
 
     }
@@ -75,7 +68,7 @@ export default {
             dataType:'json',
             headers:{'Content-Type': "application/json;charset=utf-8"}
           }).then(res =>{
-            this.$alert("验证成功！")
+            this.$alert("Authentication is successful！")
             console.log(res)
             axios({
               url:'/user/password',
@@ -92,22 +85,22 @@ export default {
               headers:{'Content-Type': "application/json;charset=utf-8"}
             }).then(res =>{
               console.log(res)
-              this.$alert("密码更改成功！")
+              this.$alert("Password changed successfully！")
               this.$router.push({path: '/contain/login'})
             }).catch(err => {
               console.log(err.message)
-              this.$alert("未知的错误！！")
+              this.$alert("Unknown error！！")
             })
 
           }).catch(err => {
             console.log(err.message)
-            this.$alert("原密码错误！")
+            this.$alert("Old password incorrect！")
           })
           /*console.log(data1)
           this.$alert("修改成功")
           this.$router.push('/contain/login')*/
         } else {
-          console.log("错误")
+          console.log("error")
           return false;
         }
       });

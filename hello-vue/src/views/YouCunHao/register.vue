@@ -1,30 +1,30 @@
 <template>
   <div>
     <el-form ref="loginForm" :model="form" :rules="rules" label-width="80px" class="login-box">
-      <h3 class="login-title">欢迎注册</h3>
+      <h3 class="login-title">Welcome to register</h3>
 
-      <el-form-item label="邮箱" prop="email">
-        <el-input type="email" placeholder="请输入邮箱" v-model="form.email"/>
+      <el-form-item label="Email" prop="email">
+        <el-input type="email" placeholder="Please enter the email" v-model="form.email"/>
       </el-form-item>
 
-      <el-form-item label="电话" prop="phone">
-        <el-input type="text" placeholder="请输入电话号码" v-model="form.phone"/>
+      <el-form-item label="PhoneNum" prop="phone">
+        <el-input type="text" placeholder="Please enter the phone num" v-model="form.phone"/>
       </el-form-item>
 
-      <el-form-item label="密码" prop="password">
-        <el-input type="password" placeholder="请输入密码" v-model="form.password"/>
+      <el-form-item label="Password" prop="password">
+        <el-input type="password" placeholder="Please enter the password" v-model="form.password"/>
       </el-form-item>
 
-      <el-form-item label="验证问题" prop="validatorQuestion">
-        <el-input type="question" placeholder="请输入验证问题" v-model="form.validatorQuestion"/>
+      <el-form-item label="VerifyQuestion" prop="validatorQuestion">
+        <el-input type="question" placeholder="Please enter the verify question" v-model="form.validatorQuestion"/>
       </el-form-item>
 
-      <el-form-item label="验证答案" prop="validatorAnswer">
-        <el-input type="answer" placeholder="请输入验证答案" v-model="form.validatorAnswer"/>
+      <el-form-item label="VerifyAnswer" prop="validatorAnswer">
+        <el-input type="answer" placeholder="Please enter the verify answer" v-model="form.validatorAnswer"/>
       </el-form-item>
 
       <el-form-item>
-        <el-button type="primary" v-on:click="onSubmit('loginForm')">注册</el-button>
+        <el-button type="primary" v-on:click="onSubmit('loginForm')">register</el-button>
       </el-form-item>
     </el-form>
 
@@ -49,24 +49,24 @@ export default {
 
       // 表单验证，需要在 el-form-item 元素中增加 prop 属性
       rules: {
-        phone: [{required: true, message: '电话号不能为空', trigger: 'blur'}, {
+        phone: [{required: true, message: 'The phone number cannot be empty', trigger: 'blur'}, {
           len: 11,
-          message: '请输入正确的手机号格式',
+          message: 'Please enter the correct mobile phone number format',
           trigger: 'blur'
         }],
-        password: [{required: true, message: '密码不能为空', trigger: 'blur'}, {
+        password: [{required: true, message: 'The password cannot be empty', trigger: 'blur'}, {
           min: 6,
           max: 16,
-          message: '长度错误',
+          message: 'The length of the error',
           trigger: 'blur'
         }],
-        email: [{required: true, message: '邮箱不能为空', trigger: 'blur'}, {
+        email: [{required: true, message: 'The mailbox cannot be empty', trigger: 'blur'}, {
           type: 'email',
-          message: '请输入正确的邮箱',
+          message: 'Please enter the correct email address',
           trigger: 'blur'
         }],
-        validatorQuestion: [{required: true, message: '验证问题不能为空', trigger: 'blur'}],
-        validatorAnswer: [{required: true, message: '验证答案不能为空', trigger: 'blur'}],
+        validatorQuestion: [{required: true, message: 'Validation question cannot be empty', trigger: 'blur'}],
+        validatorAnswer: [{required: true, message: 'Validation answer cannot be empty', trigger: 'blur'}],
       }
 
     }
@@ -93,16 +93,33 @@ export default {
           }).then(res => {
             console.log(res)
             console.log(res.data)
-            this.$alert("注册成功! " + "  User ID : " + res.data)
+            axios({
+              url:'/user/modify/basic',
+              method:'POST',
+              dataType:'json',
+              data:JSON.stringify({
+                "ubi":{
+                  "userId": res.data
+                },
+                "tagIdSet":[]
+              }),
+              headers:{'Content-Type': "application/json;charset=utf-8"}
+            }).then(res =>{
+              console.log(res)
+              this.$alert("ubi is set")
+            }).catch(err => {
+              console.log(err.message)
+            })
+            this.$alert("Registered successfully! " + "  User ID : " + res.data)
             //跳转功能
             this.$router.push({path: '/contain/login',query:{uid: res.data, email:this.form.email, phoneNum:this.form.phone, verifyQues:this.form.validatorQuestion, verifyAns:this.form.validatorAnswer}})
           }).catch(err => {
 
             console.log(err.message)
-            this.$alert("注册失败！ " + " 邮箱已存在。")
+            this.$alert("Registration failed！ " + " The email already exists.。")
           })
         } else {
-          this.$alert("注册失败！！")
+          this.$alert("Registration failed！！")
           return false;
         }
       });

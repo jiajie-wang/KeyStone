@@ -1,6 +1,7 @@
 package com.keystone.keystone.controller;
 
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -8,9 +9,12 @@ import java.util.Set;
 import com.keystone.keystone.model.Tag;
 import com.keystone.keystone.model.UserAccountInfo;
 import com.keystone.keystone.model.UserBasicInfo;
+import com.keystone.keystone.model.UserInfoPrivacy;
+import com.keystone.keystone.service.RelationshipServ;
 import com.keystone.keystone.service.TagService;
 import com.keystone.keystone.service.UserAccountInfoServ;
 import com.keystone.keystone.service.UserBasicInfoServ;
+import com.keystone.keystone.service.UserInfoPrivacyServ;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -32,6 +36,10 @@ public class PersonalPageController {
     private UserBasicInfoServ ubiService;
     @Autowired
     private TagService tagService;
+    @Autowired
+    private RelationshipServ relaService;
+    @Autowired
+    private UserInfoPrivacyServ uipService;
 
     //调取用户所有资料（不建议使用的请求）
     @GetMapping(value = "user/all/{userId}")
@@ -58,6 +66,30 @@ public class PersonalPageController {
         if(uaiService.getUserAccountInfo(userId) == null)
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         UserBasicInfo ubi = ubiService.getUserBasicInfo(userId);
+        UserBasicResponse ubr = new UserBasicResponse(ubi, ubiService.getTagIdSet(userId));
+        return ubi == null ? ResponseEntity.status(HttpStatus.NO_CONTENT).body(null) : ResponseEntity.ok().body(ubr);
+    }
+
+    //带权限调取个人资料
+    @GetMapping(value = "user/basic/{userId}/{viewerId}")
+    @CrossOrigin
+    public ResponseEntity<UserBasicResponse> getUserBasicInfoWithPrivacy(@PathVariable("userId") int userId, @PathVariable("viewerId") int viewerId){
+        if(uaiService.getUserAccountInfo(userId) == null)
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        UserBasicInfo ubi = ubiService.getUserBasicInfo(userId);
+        int relationship = relaService.getRelaLevel(userId, viewerId);
+        if(uipService.getUserInfoPrivacy(userId) == null)
+            uipService.saveUserInfoPrivacy(new UserInfoPrivacy());
+        if(relationship < uipService.getUserInfoPrivacy(userId).getBirthdayPrivacy())
+            ubi.setBirthday(new Date());
+        if(relationship < uipService.getUserInfoPrivacy(userId).getHeightPrivacy())
+            ubi.setHeight(0);
+        if(relationship < uipService.getUserInfoPrivacy(userId).getRelaStatPrivacy())
+            ubi.setRelaStat(0);
+        if(relationship < uipService.getUserInfoPrivacy(userId).getSchoolPrivacy())
+            ubi.setSchool(null);
+        if(relationship < uipService.getUserInfoPrivacy(userId).getWeightPrivacy())
+            ubi.setWeight(0);
         UserBasicResponse ubr = new UserBasicResponse(ubi, ubiService.getTagIdSet(userId));
         return ubi == null ? ResponseEntity.status(HttpStatus.NO_CONTENT).body(null) : ResponseEntity.ok().body(ubr);
     }

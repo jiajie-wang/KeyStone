@@ -1,5 +1,6 @@
 package com.keystone.keystone.controller;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
@@ -9,7 +10,6 @@ import java.util.Set;
 import com.keystone.keystone.model.Tag;
 import com.keystone.keystone.model.UserAccountInfo;
 import com.keystone.keystone.model.UserBasicInfo;
-import com.keystone.keystone.model.UserInfoPrivacy;
 import com.keystone.keystone.service.RelationshipServ;
 import com.keystone.keystone.service.TagService;
 import com.keystone.keystone.service.UserAccountInfoServ;
@@ -19,12 +19,8 @@ import com.keystone.keystone.service.UserInfoPrivacyServ;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 //个人资料界面，目前所有URL都是瞎写的，URL需要更改请随时互相通知
 
@@ -69,7 +65,7 @@ public class PersonalPageController {
         UserBasicResponse ubr = new UserBasicResponse(ubi, ubiService.getTagIdSet(userId));
         return ubi == null ? ResponseEntity.status(HttpStatus.NO_CONTENT).body(null) : ResponseEntity.ok().body(ubr);
     }
-
+    
     //带权限调取个人资料
     @GetMapping(value = "user/basic/{userId}/{viewerId}")
     @CrossOrigin
@@ -78,17 +74,15 @@ public class PersonalPageController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         UserBasicInfo ubi = ubiService.getUserBasicInfo(userId);
         int relationship = relaService.getRelaLevel(userId, viewerId);
-        if(uipService.getUserInfoPrivacy(userId) == null)
-            uipService.saveUserInfoPrivacy(new UserInfoPrivacy());
-        if(relationship < uipService.getUserInfoPrivacy(userId).getBirthdayPrivacy())
+        if(relationship >= uipService.getUserInfoPrivacy(userId).getBirthdayPrivacy())
             ubi.setBirthday(new Date());
-        if(relationship < uipService.getUserInfoPrivacy(userId).getHeightPrivacy())
+        if(relationship >= uipService.getUserInfoPrivacy(userId).getHeightPrivacy())
             ubi.setHeight(0);
-        if(relationship < uipService.getUserInfoPrivacy(userId).getRelaStatPrivacy())
+        if(relationship >= uipService.getUserInfoPrivacy(userId).getRelaStatPrivacy())
             ubi.setRelaStat(0);
-        if(relationship < uipService.getUserInfoPrivacy(userId).getSchoolPrivacy())
+        if(relationship >= uipService.getUserInfoPrivacy(userId).getSchoolPrivacy())
             ubi.setSchool(null);
-        if(relationship < uipService.getUserInfoPrivacy(userId).getWeightPrivacy())
+        if(relationship >= uipService.getUserInfoPrivacy(userId).getWeightPrivacy())
             ubi.setWeight(0);
         UserBasicResponse ubr = new UserBasicResponse(ubi, ubiService.getTagIdSet(userId));
         return ubi == null ? ResponseEntity.status(HttpStatus.NO_CONTENT).body(null) : ResponseEntity.ok().body(ubr);
@@ -108,6 +102,27 @@ public class PersonalPageController {
         //先保存ubi，然后用返回的整数值（userId）直接当作参数再保存Tag
         Integer idResultUbi = ubiService.saveUserTagSet(ubiService.saveUserBasicInfo(response.getUbi()), tagSet);
         return ResponseEntity.ok().body(Arrays.asList(idResultUai, idResultUbi));
+    }
+
+    @PostMapping(value = "user/toUploadAvatar")
+    @CrossOrigin
+    public ResponseEntity toUploadAvatar(@RequestParam("id") Integer id, MultipartFile file){
+        //判断文件类型
+        String pType=file.getContentType();
+        pType=pType.substring(pType.indexOf("/")+1);
+        long time=System.currentTimeMillis();
+        String path="/Users/yaoruanxingchen/Desktop/后端文件/KeyStone/src/main/resources/static/images/avatar"+time+"."+pType;
+        try{
+            file.transferTo(new File(path));
+            UserBasicInfo userBasicInfo = new UserBasicInfo();
+            userBasicInfo.setUserId(id);
+            userBasicInfo.setAvatar("http://localhost:8081/"+path.substring(path.indexOf("images/")));
+            ubiService.saveUserBasicInfo(userBasicInfo);
+            return ResponseEntity.ok().build();
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return ResponseEntity.internalServerError().build();
     }
 
     //保存用户账户信息
